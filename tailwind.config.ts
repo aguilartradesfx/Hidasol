@@ -18,6 +18,11 @@ const config = {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['Newsreader', 'serif'],
+        display: ['Bricolage Grotesque', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -51,6 +56,17 @@ const config = {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+        },
+        hidasol: {
+          navy: "#0B1120",
+          "dark-navy": "#070D18",
+          orange: "#F97316",
+          "orange-dark": "#C2410C",
+          "orange-light": "#FB923C",
+          slate: "#1E293B",
+          gray: "#94A3B8",
+          "light-gray": "#CBD5E1",
+          white: "#FFFFFF",
         },
       },
       borderRadius: {
