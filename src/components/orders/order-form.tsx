@@ -85,22 +85,22 @@ function FormSection({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-muted/40 transition-smooth"
+        className="w-full flex items-center justify-between px-3 sm:px-5 py-3 sm:py-3.5 hover:bg-muted/40 transition-smooth"
       >
         <div className="flex items-center gap-2">
           {isOpen ? (
-            <ChevronDown className="w-4 h-4 text-primary" />
+            <ChevronDown className="w-4 h-4 text-primary shrink-0" />
           ) : (
-            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
           )}
-          <h3 className="text-lg font-semibold font-['Bricolage_Grotesque'] text-foreground">{title}</h3>
+          <h3 className="text-base sm:text-lg font-semibold font-['Bricolage_Grotesque'] text-foreground text-left">{title}</h3>
           {badge && (
-            <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">{badge}</span>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground shrink-0">{badge}</span>
           )}
         </div>
       </button>
       {isOpen && (
-        <div className="px-5 pb-5 pt-2 space-y-4 animate-in fade-in slide-in-from-top-1 duration-200">
+        <div className="px-3 sm:px-5 pb-4 sm:pb-5 pt-2 space-y-4 animate-in fade-in slide-in-from-top-1 duration-200">
           {children}
         </div>
       )}
@@ -303,9 +303,9 @@ export function OrderForm({ order, isOpen, onClose, onSave }: OrderFormProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-background border-border w-[calc(100%-2rem)] sm:w-full rounded-[15px]">
+      <DialogContent className="max-w-4xl max-h-[92vh] overflow-y-auto bg-background border-border w-[calc(100vw-1.5rem)] sm:w-[calc(100%-2rem)] md:w-full rounded-[15px]">
         <DialogHeader className="border-b border-border pb-4">
-          <DialogTitle className="text-2xl lg:text-3xl font-bold font-['Bricolage_Grotesque']">
+          <DialogTitle className="text-xl sm:text-2xl lg:text-3xl font-bold font-['Bricolage_Grotesque']">
             {isEditMode ? 'Editar Orden' : 'Nueva Orden'}
           </DialogTitle>
           {!canFullEdit && (
@@ -320,7 +320,7 @@ export function OrderForm({ order, isOpen, onClose, onSave }: OrderFormProps) {
           {/* ========== Sección 1 — Información del Cliente ========== */}
           <FormSection title="1 — Información del Cliente">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="col-span-2">
+              <div className="col-span-1 sm:col-span-2">
                 <Label>Nombre del cliente *</Label>
                 <Input
                   required
@@ -378,7 +378,7 @@ export function OrderForm({ order, isOpen, onClose, onSave }: OrderFormProps) {
                   readOnly={!canFullEdit}
                 />
               </div>
-              <div className="col-span-2">
+              <div className="col-span-1 sm:col-span-2">
                 <Label>Ubicación del cliente</Label>
                 <div className="flex gap-2 mt-1">
                   <Input
@@ -584,7 +584,7 @@ export function OrderForm({ order, isOpen, onClose, onSave }: OrderFormProps) {
                   readOnly={!canFullEdit}
                 />
               </div>
-              <div className="col-span-2">
+              <div className="col-span-1 sm:col-span-2">
                 <Label className="mb-2 block">Estado</Label>
                 <div className="flex gap-2 flex-wrap">
                   {isEditMode ? (
@@ -1117,7 +1117,7 @@ export function OrderForm({ order, isOpen, onClose, onSave }: OrderFormProps) {
           {/* ========== Sección 6 — Producción ========== */}
           <FormSection title="6 — Producción">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="col-span-2">
+              <div className="col-span-1 sm:col-span-2">
                 <Label className="text-base font-semibold mb-3 block">
                   Máquina asignada <span className="text-xs font-normal text-muted-foreground">({(Array.isArray(formData.maquinaAsignada) ? formData.maquinaAsignada : formData.maquinaAsignada ? [formData.maquinaAsignada] : []).length} seleccionadas)</span>
                 </Label>

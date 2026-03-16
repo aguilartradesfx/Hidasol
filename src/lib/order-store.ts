@@ -1,6 +1,6 @@
 "use client";
 
-import { Order, OrderStatus, Acabado } from "@/types/order";
+import { Order, OrderStatus, Acabado, CorporeoOption } from "@/types/order";
 import { createClient } from "./supabase";
 
 // Lazy-initialized client — ensures it's created in browser context
@@ -40,7 +40,9 @@ function orderToRow(order: Order): Record<string, any> {
     caras: order.caras || "",
     acabados: order.acabados ? order.acabados.join(", ") : "",
     corporeos: order.corporeoTipo || null,
-    corporeos_multi: order.corporeoMulti ? order.corporeoMulti.join(", ") : null,
+    corporeos_multi: order.corporeoMulti
+      ? order.corporeoMulti.join(", ")
+      : null,
     corporeo_color: order.corporeoColor || null,
     corporeo_fuente: order.corporeoFuente || null,
     corporeo_material: order.corporeoMaterial || null,
@@ -124,7 +126,10 @@ function rowToOrder(row: any): Order {
 
   const corporeoMultiStr: string = row.corporeos_multi || "";
   const corporeoMultiArr = corporeoMultiStr
-    ? corporeoMultiStr.split(",").map((s: string) => s.trim()).filter(Boolean)
+    ? corporeoMultiStr
+        .split(",")
+        .map((s: string) => s.trim())
+        .filter(Boolean)
     : [];
 
   return {
@@ -152,9 +157,12 @@ function rowToOrder(row: any): Order {
     caras: row.caras || "",
     acabados: acabadosArr,
     corporeoTipo: row.corporeos || undefined,
-    corporeoMulti: corporeoMultiArr.length > 0 ? corporeoMultiArr : undefined,
+    corporeoMulti:
+      corporeoMultiArr.length > 0
+        ? (corporeoMultiArr as CorporeoOption[])
+        : undefined,
     corporeoColor: row.corporeo_color || undefined,
-    corporeoFuente: (row.corporeo_fuente as 'Si' | 'No') || undefined,
+    corporeoFuente: (row.corporeo_fuente as "Si" | "No") || undefined,
     corporeoMaterial: row.corporeo_material || undefined,
     corporeoGrosor: row.corporeo_grosor
       ? Number(row.corporeo_grosor)
