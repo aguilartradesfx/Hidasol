@@ -517,18 +517,20 @@ export function OrderForm({ order, isOpen, onClose, onSave }: OrderFormProps) {
                 <Input
                   value={order?.id || 'Se generará automáticamente'}
                   readOnly
+                  disabled
                   className="mt-1 rounded-[10px] font-mono bg-muted/50 cursor-not-allowed"
                 />
               </div>
               <div>
                 <Label>
                   Fecha de ingreso{' '}
-                  {!isEditMode && <span className="text-xs text-muted-foreground">(auto)</span>}
+                  <span className="text-xs text-muted-foreground">(auto)</span>
                 </Label>
                 <Input
-                  type="date"
-                  value={formatDateForInput(formData.fechaIngreso)}
+                  type="text"
+                  value={formData.fechaIngreso ? new Date(formData.fechaIngreso).toLocaleDateString('es-CO', { year: 'numeric', month: 'short', day: 'numeric' }) : ''}
                   readOnly
+                  disabled
                   className="mt-1 rounded-[10px] bg-muted/50 cursor-not-allowed"
                 />
               </div>
@@ -538,8 +540,9 @@ export function OrderForm({ order, isOpen, onClose, onSave }: OrderFormProps) {
                   type="date"
                   value={formatDateForInput(formData.fechaLimite)}
                   onChange={(e) => updateField('fechaLimite', e.target.value ? new Date(e.target.value) : undefined)}
-                  className="mt-1 rounded-[10px]"
+                  className="mt-1 rounded-[10px] w-full"
                   readOnly={!canFullEdit}
+                  disabled={!canFullEdit}
                 />
               </div>
               <div>
@@ -1283,11 +1286,11 @@ export function OrderForm({ order, isOpen, onClose, onSave }: OrderFormProps) {
           )}
 
           {/* ========== Botones de acción ========== */}
-          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6 border-t border-border">
+          <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 pb-2 border-t border-border">
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-3 rounded-[10px] border border-border hover:bg-muted transition-smooth font-medium flex items-center gap-2"
+              className="px-6 py-3 rounded-[10px] border border-border hover:bg-muted transition-smooth font-medium flex items-center justify-center gap-2"
             >
               <X className="w-4 h-4" />
               Cancelar
@@ -1296,7 +1299,7 @@ export function OrderForm({ order, isOpen, onClose, onSave }: OrderFormProps) {
               <button
                 type="button"
                 onClick={() => updateField('estado', 'Nueva')}
-                className="px-6 py-3 rounded-[10px] border border-primary/30 text-primary hover:bg-primary/5 transition-smooth font-medium flex items-center gap-2"
+                className="px-6 py-3 rounded-[10px] border border-primary/30 text-primary hover:bg-primary/5 transition-smooth font-medium flex items-center justify-center gap-2"
               >
                 <FileText className="w-4 h-4" />
                 Guardar borrador
@@ -1305,7 +1308,7 @@ export function OrderForm({ order, isOpen, onClose, onSave }: OrderFormProps) {
             <button
               type="submit"
               disabled={saving}
-              className="flex items-center gap-2 px-6 py-3 rounded-[10px] bg-primary text-primary-foreground font-medium transition-smooth hover:scale-105 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center justify-center gap-2 px-6 py-3 rounded-[10px] bg-primary text-primary-foreground font-medium transition-smooth hover:scale-105 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Save className="w-4 h-4" />
               {saving ? 'Guardando...' : (isEditMode ? 'Guardar Cambios' : 'Crear Orden')}

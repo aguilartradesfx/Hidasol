@@ -161,7 +161,7 @@ export function HierarchicalOrderBrowser({
             const isYearExpanded = expandedYears.has(year);
             const months = Object.keys(groupedOrders[year])
               .map(Number)
-              .sort((a, b) => b - a);
+              .sort((a, b) => a - b);
 
             return (
               <div key={year} className="space-y-2">
@@ -185,7 +185,7 @@ export function HierarchicalOrderBrowser({
                       const isMonthExpanded = expandedMonths.has(yearMonth);
                       const weeks = Object.keys(groupedOrders[year][month])
                         .map(Number)
-                        .sort((a, b) => b - a);
+                        .sort((a, b) => a - b);
 
                       return (
                         <div key={yearMonth} className="space-y-2">
@@ -203,15 +203,16 @@ export function HierarchicalOrderBrowser({
 
                           {isMonthExpanded && (
                             <div className="ml-3 lg:ml-5 pl-3 lg:pl-4 border-l border-border space-y-2">
-                              {weeks.map((week) => {
+                              {weeks.map((week, weekIndex) => {
                                 const yearMonthWeek = `${yearMonth}-${week}`;
                                 const isWeekExpanded =
                                   expandedWeeks.has(yearMonthWeek);
                                 const days = Object.keys(
                                   groupedOrders[year][month][week],
                                 )
-                                  .sort()
-                                  .reverse();
+                                  .sort();
+                                // Display as "Semana 1, 2, 3…" within the month
+                                const weekDisplayNumber = weekIndex + 1;
 
                                 return (
                                   <div
@@ -228,7 +229,7 @@ export function HierarchicalOrderBrowser({
                                         <ChevronRight className="w-4 h-4" />
                                       )}
                                       <span className="font-medium">
-                                        Semana {week}
+                                        Semana {weekDisplayNumber}
                                       </span>
                                     </button>
 
