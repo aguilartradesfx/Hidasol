@@ -135,25 +135,6 @@ export function LoginPage() {
           </form>
         </div>
 
-        {/* Credentials reference */}
-        <div className="mt-6 bg-[#0d1525]/80 border border-[#1a2436] rounded-xl p-4">
-          <p className="text-[#64748B] text-xs uppercase tracking-widest mb-3 text-center">Accesos disponibles</p>
-          <div className="space-y-1.5">
-            {[
-              { role: 'Admin', user: 'admin', pass: 'Hid@s0l-Admin2025' },
-              { role: 'Ventas', user: 'ventas', pass: 'Hid@s0l-Ventas2025' },
-              { role: 'Diseño', user: 'diseno', pass: 'Hid@s0l-Diseno2025' },
-              { role: 'Operario', user: 'operario', pass: 'Hid@s0l-Operario2025' },
-              { role: 'Taller', user: 'taller', pass: 'Hid@s0l-Taller2025' },
-            ].map(c => (
-              <div key={c.role} className="flex items-center justify-between text-xs gap-3">
-                <span className="text-[#94A3B8] w-16 shrink-0">{c.role}</span>
-                <span className="font-mono text-[#64748B] w-16 shrink-0">{c.user}</span>
-                <span className="font-mono text-[#4B5563] text-[10px] truncate">{c.pass}</span>
-              </div>
-            ))}
-          </div>
-        </div>
 
         <p className="text-center text-[#374151] text-xs mt-4">
           © 2025 Hidasol — Sistema Interno
