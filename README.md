@@ -17,7 +17,7 @@ A sophisticated production order management system for a print shop, featuring h
 - TypeScript
 - Tailwind CSS
 - shadcn/ui + Radix UI
-- Local Storage
+- Supabase (PostgreSQL + Realtime)
 
 ## Development
 
