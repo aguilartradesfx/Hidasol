@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# Environment variables (contain secrets)
+.env
+.env.local
+.env*.local
+
+# Claude Code
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build outputs
+dist/
+build/
+
+# Misc
+*.log
+npm-debug.log*
+tsconfig.tsbuildinfo
