@@ -30,12 +30,13 @@ import { QuickAssignModal } from '@/components/orders/quick-assign-modal';
 import { ReportsView } from '@/components/orders/reports-view';
 import { AssignmentsView } from '@/components/orders/assignments-view';
 import { DesignerDashboard } from '@/components/orders/designer-dashboard';
+import { UsersView } from '@/components/orders/users-view';
 import { StationDashboard } from '@/components/orders/station-dashboard';
 import { useAuth } from '@/contexts/auth-context';
 import { LoginPage } from '@/components/auth/login-page';
 import { isStationOnlyRole, primaryStationForRole } from '@/lib/stations';
 
-type NavSection = 'dashboard' | 'orders' | 'search' | 'assignments' | 'reports';
+type NavSection = 'dashboard' | 'orders' | 'search' | 'assignments' | 'reports' | 'users';
 
 export default function Page() {
   const { user, loading: authLoading, isAdmin, signOut } = useAuth();
@@ -399,6 +400,8 @@ export default function Page() {
                       <ReportsView />
                     </>
                   )}
+
+                  {activeSection === 'users' && isAdmin && <UsersView />}
                 </>
               )}
             </>

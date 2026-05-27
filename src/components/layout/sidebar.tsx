@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { LayoutDashboard, Package, Search, Plus, Users, LogOut, ShieldCheck, User, Menu, X, UserPlus, BarChart2 } from 'lucide-react';
+import { LayoutDashboard, Package, Search, Plus, Users, LogOut, ShieldCheck, User, Menu, X, UserPlus, BarChart2, KeyRound } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ThemeSwitcher } from '@/components/theme-switcher';
 
-type NavSection = 'dashboard' | 'orders' | 'search' | 'assignments' | 'reports';
+type NavSection = 'dashboard' | 'orders' | 'search' | 'assignments' | 'reports' | 'users';
 
 interface SidebarProps {
   activeSection: NavSection;
@@ -28,6 +28,7 @@ export function Sidebar({ activeSection, onSectionChange, onNewOrder, onOpenAssi
     { id: 'search' as NavSection, label: 'Buscar', icon: Search, adminOnly: false },
     { id: 'assignments' as NavSection, label: 'Asignaciones', icon: Users, adminOnly: false },
     { id: 'reports' as NavSection, label: 'Reportes', icon: BarChart2, adminOnly: true },
+    { id: 'users' as NavSection, label: 'Usuarios', icon: KeyRound, adminOnly: true },
   ].filter(item => !item.adminOnly || isAdmin);
 
   const handleNavClick = (section: NavSection) => {
@@ -161,7 +162,13 @@ export function Sidebar({ activeSection, onSectionChange, onNewOrder, onOpenAssi
             >
               <Icon className={cn('w-5 h-5', isActive && 'drop-shadow-[0_0_6px_rgba(249,115,22,0.5)]')} />
               <span className="text-[10px] font-medium truncate max-w-[60px]">
-                {item.id === 'dashboard' ? 'Inicio' : item.id === 'orders' ? 'Órdenes' : item.id === 'search' ? 'Buscar' : 'Asignar'}
+                {item.id === 'dashboard' ? 'Inicio'
+                  : item.id === 'orders' ? 'Órdenes'
+                  : item.id === 'search' ? 'Buscar'
+                  : item.id === 'assignments' ? 'Asignar'
+                  : item.id === 'reports' ? 'Reportes'
+                  : item.id === 'users' ? 'Usuarios'
+                  : item.label}
               </span>
             </button>
           );
