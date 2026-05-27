@@ -14,6 +14,8 @@ import {
 } from '@/components/ui/accordion';
 import { Printer, Edit, ChevronDown, UserPlus } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
+import { StationControl } from './station-control';
+import type { Station } from '@/lib/stations';
 
 const DISENO_OPTIONS = ['Arte 1', 'Arte 2', 'Arte 3', 'Arte 4'];
 
@@ -25,6 +27,7 @@ interface OrderDetailModalProps {
   onEdit: (order: Order) => void;
   onPrint: (order: Order) => void;
   onDisenadoPorChange?: (orderId: string, value: string) => void;
+  onStationChange?: (orderId: string, newStation: Station) => Promise<void>;
   isAdmin?: boolean;
 }
 
@@ -36,6 +39,7 @@ export function OrderDetailModal({
   onEdit,
   onPrint,
   onDisenadoPorChange,
+  onStationChange,
   isAdmin = false,
 }: OrderDetailModalProps) {
   const [statusOpen, setStatusOpen] = useState(false);
@@ -165,6 +169,10 @@ export function OrderDetailModal({
               Emitir Boleta
             </button>
           </div>
+
+          {onStationChange && (
+            <StationControl order={order} onMove={onStationChange} />
+          )}
 
           <Accordion type="multiple" defaultValue={['cliente', 'producto', 'material', 'medidas', 'valores']} className="space-y-3">
             {/* Cliente */}

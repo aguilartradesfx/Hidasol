@@ -1,4 +1,17 @@
+import type { Station } from '@/lib/stations';
+
 export type OrderStatus = 'Nueva' | 'En proceso' | 'Terminado';
+
+export interface StationHistoryEntry {
+  id: number;
+  orderId: string;
+  estacionDesde: Station | null;
+  estacionHasta: Station;
+  movidaPorId?: string;
+  movidaPorName?: string;
+  movidaEn: Date;
+  notas?: string;
+}
 
 export type TipoOrden = 'Rotulacion' | 'Sellos' | 'Papeleria';
 export type TipoSello = 'Automático' | 'Blanco' | 'Chapas';
@@ -161,6 +174,11 @@ export interface Order {
   // Sección 7 — Notas
   especificaciones?: string;
   notasAdicionales?: string;
+
+  // ── Estaciones (workflow multi-departamento) ───────────────────
+  estacionActual?: Station;
+  estacionAnterior?: Station;
+  estacionDesde?: Date;
 
   // Campo oculto
   contactId?: string;

@@ -8,9 +8,11 @@ import {
   updateOrderInDB,
   updateOrderStatus,
   updateDisenadoPor,
+  moveOrderToStation,
   subscribeToOrders,
   generateOrderIdFromDB,
 } from '@/lib/order-store';
+import type { Station } from '@/lib/stations';
 import { useToast } from '@/components/ui/use-toast';
 import { groupOrdersByDate, calculateDashboardStats } from '@/lib/order-utils';
 import { Sidebar } from '@/components/layout/sidebar';
@@ -28,8 +30,10 @@ import { QuickAssignModal } from '@/components/orders/quick-assign-modal';
 import { ReportsView } from '@/components/orders/reports-view';
 import { AssignmentsView } from '@/components/orders/assignments-view';
 import { DesignerDashboard } from '@/components/orders/designer-dashboard';
+import { StationDashboard } from '@/components/orders/station-dashboard';
 import { useAuth } from '@/contexts/auth-context';
 import { LoginPage } from '@/components/auth/login-page';
+import { isStationOnlyRole, primaryStationForRole } from '@/lib/stations';
 
 type NavSection = 'dashboard' | 'orders' | 'search' | 'assignments' | 'reports';
 
@@ -100,6 +104,50 @@ export default function Page() {
   const handleOrderClick = (order: Order) => {
     setSelectedOrder(order);
     setIsDetailModalOpen(true);
+  };
+
+  const handleStationChange = async (orderId: string, newStation: Station) => {
+    if (!user) return;
+    const now = new Date();
+    const previousOrders = orders;
+    const previousSelected = selectedOrder;
+
+    setOrders(prev =>
+      prev.map(o =>
+        o.id === orderId
+          ? { ...o, estacionAnterior: o.estacionActual, estacionActual: newStation, estacionDesde: now }
+          : o,
+      ),
+    );
+    if (selectedOrder?.id === orderId) {
+      setSelectedOrder(prev =>
+        prev
+          ? { ...prev, estacionAnterior: prev.estacionActual, estacionActual: newStation, estacionDesde: now }
+          : null,
+      );
+    }
+
+    const { ok, error } = await moveOrderToStation(
+      orderId,
+      newStation,
+      { id: user.id, name: user.name },
+    );
+
+    if (!ok) {
+      setOrders(previousOrders);
+      setSelectedOrder(previousSelected);
+      toast({
+        title: '❌ Error',
+        description: error || 'No se pudo mover la orden de estación.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    toast({
+      title: '✅ Movida',
+      description: `Orden ${orderId} ahora en ${newStation}.`,
+    });
   };
 
   // Open type selector instead of going straight to form
@@ -179,6 +227,47 @@ export default function Page() {
   }
 
   if (!user) return <LoginPage />;
+
+  // ── Station-only roles get a minimal dashboard scoped to their station ────
+  const stationOnly = isStationOnlyRole(user.role);
+  const myStation = primaryStationForRole(user.role);
+
+  if (stationOnly && myStation) {
+    if (loading) {
+      return (
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" />
+        </div>
+      );
+    }
+    return (
+      <>
+        <StationDashboard
+          station={myStation}
+          orders={orders}
+          user={{ name: user.name }}
+          onOrderClick={handleOrderClick}
+          onSignOut={signOut}
+        />
+        <OrderDetailModal
+          order={selectedOrder}
+          isOpen={isDetailModalOpen}
+          onClose={() => { setIsDetailModalOpen(false); setSelectedOrder(null); }}
+          onStatusChange={handleStatusChange}
+          onEdit={handleEditOrder}
+          onPrint={handlePrintTicket}
+          onDisenadoPorChange={handleDisenadoPorChange}
+          onStationChange={handleStationChange}
+          isAdmin={isAdmin}
+        />
+        <ProductionTicket
+          order={selectedOrder}
+          isOpen={isTicketModalOpen}
+          onClose={() => { setIsTicketModalOpen(false); setSelectedOrder(null); }}
+        />
+      </>
+    );
+  }
 
   // ── Designer view ──────────────────────────────────────────────────────────
   const isDesigner = user.role === 'diseno';
@@ -326,6 +415,7 @@ export default function Page() {
         onEdit={handleEditOrder}
         onPrint={handlePrintTicket}
         onDisenadoPorChange={handleDisenadoPorChange}
+        onStationChange={handleStationChange}
         isAdmin={isAdmin}
       />
 

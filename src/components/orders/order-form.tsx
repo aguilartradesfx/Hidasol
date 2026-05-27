@@ -1151,7 +1151,7 @@ export function OrderForm({ order, isOpen, onClose, onSave }: OrderFormProps) {
               <div>
                 <Label>
                   Impreso por{' '}
-                  {userRole === 'operario' && <span className="text-xs text-primary">(editable)</span>}
+                  {isFieldEditable('impresoPor') && !canFullEdit && <span className="text-xs text-primary">(editable)</span>}
                 </Label>
                 <Input
                   value={formData.impresoPor || ''}
@@ -1205,7 +1205,7 @@ export function OrderForm({ order, isOpen, onClose, onSave }: OrderFormProps) {
               <div>
                 <Label>
                   Metros impresos{' '}
-                  {userRole === 'operario' && <span className="text-xs text-primary">(editable)</span>}
+                  {isFieldEditable('metrosImpresos') && !canFullEdit && <span className="text-xs text-primary">(editable)</span>}
                 </Label>
                 <Input
                   type="number"
@@ -1220,7 +1220,7 @@ export function OrderForm({ order, isOpen, onClose, onSave }: OrderFormProps) {
               <div>
                 <Label>
                   Metros desperdicio{' '}
-                  {userRole === 'operario' && <span className="text-xs text-primary">(editable)</span>}
+                  {isFieldEditable('metrosDesperdicio') && !canFullEdit && <span className="text-xs text-primary">(editable)</span>}
                 </Label>
                 <Input
                   type="number"
@@ -1235,7 +1235,7 @@ export function OrderForm({ order, isOpen, onClose, onSave }: OrderFormProps) {
               <div>
                 <Label>
                   ML uso de tinta{' '}
-                  {userRole === 'operario' && <span className="text-xs text-primary">(editable)</span>}
+                  {isFieldEditable('mlUsoTinta') && !canFullEdit && <span className="text-xs text-primary">(editable)</span>}
                 </Label>
                 <Input
                   type="number"

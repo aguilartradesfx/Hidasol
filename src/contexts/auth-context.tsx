@@ -2,7 +2,17 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
-export type UserRole = 'admin' | 'ventas' | 'diseno' | 'operario' | 'taller';
+export type UserRole =
+  | 'admin'
+  | 'ventas'
+  | 'diseno'
+  | 'corte'
+  | 'laser'
+  | 'litografia'
+  | 'taller'
+  | 'encuadernacion'
+  | 'acabados'
+  | 'bodega';
 
 interface AuthUser {
   id: string;
@@ -50,23 +60,73 @@ const VALID_USERS: { username: string; password: string; user: AuthUser }[] = [
     },
   },
   {
-    username: 'operario',
-    password: 'Hid@s0l-Operario2025',
+    username: 'corte',
+    password: 'Hid@s0l-Corte-2026',
     user: {
-      id: 'operario-001',
-      email: 'operario@hidasol.com',
-      name: 'Operario',
-      role: 'operario',
+      id: 'corte-001',
+      email: 'corte@hidasol.com',
+      name: 'Corte e Impresión',
+      role: 'corte',
+    },
+  },
+  {
+    username: 'laser',
+    password: 'Hid@s0l-Laser-2026',
+    user: {
+      id: 'laser-001',
+      email: 'laser@hidasol.com',
+      name: 'Grabado Láser',
+      role: 'laser',
+    },
+  },
+  {
+    username: 'litografia',
+    password: 'Hid@s0l-Litografia-2026',
+    user: {
+      id: 'litografia-001',
+      email: 'litografia@hidasol.com',
+      name: 'Litografía',
+      role: 'litografia',
     },
   },
   {
     username: 'taller',
-    password: 'Hid@s0l-Taller2025',
+    password: 'Hid@s0l-Taller-2026',
     user: {
       id: 'taller-001',
       email: 'taller@hidasol.com',
       name: 'Taller',
       role: 'taller',
+    },
+  },
+  {
+    username: 'encuadernacion',
+    password: 'Hid@s0l-Encuadernacion-2026',
+    user: {
+      id: 'encuadernacion-001',
+      email: 'encuadernacion@hidasol.com',
+      name: 'Encuadernación',
+      role: 'encuadernacion',
+    },
+  },
+  {
+    username: 'acabados',
+    password: 'Hid@s0l-Acabados-2026',
+    user: {
+      id: 'acabados-001',
+      email: 'acabados@hidasol.com',
+      name: 'Acabados',
+      role: 'acabados',
+    },
+  },
+  {
+    username: 'bodega',
+    password: 'Hid@s0l-Bodega-2026',
+    user: {
+      id: 'bodega-001',
+      email: 'bodega@hidasol.com',
+      name: 'Bodega',
+      role: 'bodega',
     },
   },
   {
@@ -172,8 +232,13 @@ const ROLE_EDITABLE_FIELDS: Record<UserRole, string[]> = {
   admin: ['*'],
   ventas: ['*'],
   diseno: ['disenadoPor', 'fechaEnvioArte'],
-  operario: ['metrosDesperdicio', 'metrosImpresos', 'mlUsoTinta', 'impresoPor'],
+  corte: ['metrosDesperdicio', 'metrosImpresos', 'mlUsoTinta', 'impresoPor'],
+  laser: ['metrosDesperdicio', 'metrosImpresos', 'mlUsoTinta', 'impresoPor'],
+  litografia: ['metrosDesperdicio', 'metrosImpresos', 'mlUsoTinta', 'impresoPor'],
   taller: ['finalizadoPor', 'realizadaPor'],
+  encuadernacion: ['finalizadoPor', 'realizadaPor'],
+  acabados: ['finalizadoPor', 'realizadaPor'],
+  bodega: ['finalizadoPor'],
 };
 
 export function getFieldPermission(role: UserRole | null, field: string): FieldPermission {

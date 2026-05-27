@@ -1,6 +1,7 @@
 "use client";
 
-import { Order, OrderStatus, Acabado, CorporeoOption } from "@/types/order";
+import { Order, OrderStatus, Acabado, CorporeoOption, StationHistoryEntry } from "@/types/order";
+import { isStation, type Station } from "./stations";
 import { createClient } from "./supabase";
 
 // Lazy-initialized client — ensures it's created in browser context
@@ -123,6 +124,11 @@ function orderToRow(order: Order): Record<string, any> {
     empacado_por: order.empacadoPor || null,
     coleccionado_por: order.coleccionadoPor || null,
     refilado_por: order.refiladoPor || null,
+    estacion_actual: order.estacionActual || null,
+    estacion_anterior: order.estacionAnterior || null,
+    estacion_desde: order.estacionDesde
+      ? new Date(order.estacionDesde).toISOString()
+      : null,
   };
 }
 
@@ -255,6 +261,9 @@ function rowToOrder(row: any): Order {
     empacadoPor: row.empacado_por || undefined,
     coleccionadoPor: row.coleccionado_por || undefined,
     refiladoPor: row.refilado_por || undefined,
+    estacionActual: isStation(row.estacion_actual) ? row.estacion_actual : undefined,
+    estacionAnterior: isStation(row.estacion_anterior) ? row.estacion_anterior : undefined,
+    estacionDesde: row.estacion_desde ? new Date(row.estacion_desde) : undefined,
   };
 }
 
@@ -518,4 +527,98 @@ export function subscribeToOrders(callback: (orders: Order[]) => void) {
   return () => {
     supabase.removeChannel(channel);
   };
+}
+
+// ============================================================
+// STATION TRACKING
+// ============================================================
+
+export async function moveOrderToStation(
+  orderId: string,
+  newStation: Station,
+  movedBy: { id?: string; name?: string },
+  notas?: string,
+): Promise<{ ok: boolean; error: string | null }> {
+  const supabase = getSupabase();
+
+  // Read current station so we can record the transition.
+  const { data: current, error: readErr } = await supabase
+    .from("orders")
+    .select("estacion_actual")
+    .eq("order_id", orderId)
+    .single();
+
+  if (readErr) {
+    console.error("[moveOrderToStation] read error:", readErr);
+    return { ok: false, error: readErr.message };
+  }
+
+  const fromStation: string | null = current?.estacion_actual ?? null;
+  if (fromStation === newStation) {
+    return { ok: true, error: null };
+  }
+
+  const nowIso = new Date().toISOString();
+
+  const updates: Record<string, any> = {
+    estacion_actual: newStation,
+    estacion_anterior: fromStation,
+    estacion_desde: nowIso,
+  };
+  // Automatically flip macro estado when reaching Bodega (delivery).
+  if (newStation === "Bodega") updates.estado = "Terminado";
+  else if (fromStation === "Recepción") updates.estado = "En proceso";
+
+  const { error: updErr } = await supabase
+    .from("orders")
+    .update(updates)
+    .eq("order_id", orderId);
+
+  if (updErr) {
+    console.error("[moveOrderToStation] update error:", updErr);
+    return { ok: false, error: updErr.message };
+  }
+
+  const { error: histErr } = await supabase.from("order_station_history").insert({
+    order_id: orderId,
+    estacion_desde: fromStation,
+    estacion_hasta: newStation,
+    movida_por_id: movedBy.id ?? null,
+    movida_por_name: movedBy.name ?? null,
+    movida_en: nowIso,
+    notas: notas ?? null,
+  });
+
+  if (histErr) {
+    console.error("[moveOrderToStation] history insert error:", histErr);
+    // The order moved successfully; treat history error as soft failure.
+    return { ok: true, error: `Movida pero sin historial: ${histErr.message}` };
+  }
+
+  return { ok: true, error: null };
+}
+
+export async function loadStationHistory(orderId: string): Promise<StationHistoryEntry[]> {
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from("order_station_history")
+    .select("*")
+    .eq("order_id", orderId)
+    .order("movida_en", { ascending: true });
+
+  if (error) {
+    console.error("[loadStationHistory] error:", error);
+    return [];
+  }
+
+  return (data || []).map((row: any): StationHistoryEntry => ({
+    id: row.id,
+    orderId: row.order_id,
+    estacionDesde: isStation(row.estacion_desde) ? row.estacion_desde : null,
+    estacionHasta: (isStation(row.estacion_hasta) ? row.estacion_hasta : "Recepción") as Station,
+    movidaPorId: row.movida_por_id || undefined,
+    movidaPorName: row.movida_por_name || undefined,
+    movidaEn: new Date(row.movida_en),
+    notas: row.notas || undefined,
+  }));
 }
