@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Hidasol · Accesos y Credenciales (CONFIDENCIAL)</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --border: #334155;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --danger: #f87171;
+      --ok: #4ade80;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 2rem 1rem;
+      line-height: 1.5;
+    }
+    .wrap { max-width: 920px; margin: 0 auto; }
+    h1 { font-size: 1.6rem; margin: 0 0 .25rem; }
+    .sub { color: var(--muted); margin: 0 0 1.5rem; font-size: .9rem; }
+    .warn {
+      background: rgba(248,113,113,.12);
+      border: 1px solid var(--danger);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+      font-size: .9rem;
+    }
+    .warn strong { color: var(--danger); }
+    .toolbar {
+      display: flex; gap: .75rem; flex-wrap: wrap;
+      margin-bottom: 1rem; align-items: center;
+    }
+    input[type="search"] {
+      flex: 1; min-width: 200px;
+      background: var(--card); border: 1px solid var(--border);
+      color: var(--text); padding: .6rem .9rem; border-radius: 10px;
+      font-size: .95rem;
+    }
+    button {
+      background: var(--card); border: 1px solid var(--border);
+      color: var(--text); padding: .6rem 1rem; border-radius: 10px;
+      cursor: pointer; font-size: .9rem; transition: .15s;
+    }
+    button:hover { border-color: var(--accent); color: var(--accent); }
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; overflow: hidden;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: .85rem 1rem; font-size: .92rem; }
+    th { color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--border); font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    tr + tr td { border-top: 1px solid var(--border); }
+    tbody tr:hover { background: rgba(56,189,248,.06); }
+    .role { font-weight: 600; }
+    .tag {
+      display: inline-block; font-size: .72rem; padding: .15rem .5rem;
+      border-radius: 999px; background: rgba(148,163,184,.15);
+      color: var(--muted); margin-left: .4rem; vertical-align: middle;
+    }
+    code {
+      font-family: "SF Mono", Menlo, Consolas, monospace;
+      background: rgba(15,23,42,.6); padding: .2rem .45rem; border-radius: 6px;
+    }
+    .pw { letter-spacing: .05em; }
+    .pw.hidden { color: var(--muted); }
+    .copy {
+      padding: .3rem .6rem; font-size: .78rem; margin-left: .4rem;
+    }
+    .copied { color: var(--ok) !important; border-color: var(--ok) !important; }
+    footer { color: var(--muted); font-size: .8rem; margin-top: 1.5rem; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>🔐 Hidasol · Accesos y Credenciales</h1>
+    <p class="sub">Documento confidencial para el usuario maestro (Admin). No compartir ni publicar.</p>
+
+    <div class="warn">
+      <strong>⚠️ CONFIDENCIAL.</strong> Este archivo contiene todas las contraseñas del sistema en texto plano.
+      Guárdalo en un lugar seguro, no lo subas a un sitio web público ni lo envíes por canales abiertos.
+      Si una contraseña se ve comprometida, cámbiala en <code>src/contexts/auth-context.tsx</code>.
+    </div>
+
+    <div class="toolbar">
+      <input type="search" id="filter" placeholder="Buscar por nombre, usuario o rol…" />
+      <button id="toggle">👁️ Mostrar/Ocultar contraseñas</button>
+    </div>
+
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th>Área / Nombre</th>
+            <th>Usuario</th>
+            <th>Contraseña</th>
+            <th>Rol</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+
+    <footer>
+      Generado para Hidasol · Sistema de gestión de órdenes · Mantener fuera de control de versiones público.
+    </footer>
+  </div>
+
+  <script>
+    // Fuente: src/contexts/auth-context.tsx (VALID_USERS)
+    const USERS = [
+      { name: "Admin",              username: "admin",          password: "Hid@s0l-Admin2025",            role: "admin" },
+      { name: "Ventas",             username: "ventas",         password: "Hid@s0l-Ventas2025",           role: "ventas" },
+      { name: "Corte e Impresión",  username: "corte",          password: "Hid@s0l-Corte-2026",           role: "corte" },
+      { name: "Grabado Láser",      username: "laser",          password: "Hid@s0l-Laser-2026",           role: "laser" },
+      { name: "Litografía",         username: "litografia",     password: "Hid@s0l-Litografia-2026",      role: "litografia" },
+      { name: "Taller",             username: "taller",         password: "Hid@s0l-Taller-2026",          role: "taller" },
+      { name: "Encuadernación",     username: "encuadernacion", password: "Hid@s0l-Encuadernacion-2026",  role: "encuadernacion" },
+      { name: "Acabados",           username: "acabados",       password: "Hid@s0l-Acabados-2026",        role: "acabados" },
+      { name: "Bodega",             username: "bodega",         password: "Hid@s0l-Bodega-2026",          role: "bodega" },
+      { name: "Arte 1",             username: "arte1",          password: "Hid@s0l-Arte1-2025",           role: "diseno" },
+      { name: "Arte 2",             username: "arte2",          password: "Hid@s0l-Arte2-2025",           role: "diseno" },
+      { name: "Arte 3",             username: "arte3",          password: "Hid@s0l-Arte3-2025",           role: "diseno" },
+      { name: "Arte 4",             username: "arte4",          password: "Hid@s0l-Arte4-2025",           role: "diseno" },
+    ];
+
+    let visible = false;
+    const tbody = document.getElementById("rows");
+    const filterInput = document.getElementById("filter");
+
+    function mask(pw) { return "•".repeat(Math.min(pw.length, 14)); }
+
+    function render() {
+      const q = filterInput.value.trim().toLowerCase();
+      tbody.innerHTML = "";
+      USERS.filter(u =>
+        !q || u.name.toLowerCase().includes(q) || u.username.toLowerCase().includes(q) || u.role.toLowerCase().includes(q)
+      ).forEach(u => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td class="role">${u.name}</td>
+          <td><code>${u.username}</code><button class="copy" data-copy="${u.username}">copiar</button></td>
+          <td>
+            <code class="pw ${visible ? "" : "hidden"}">${visible ? u.password : mask(u.password)}</code>
+            <button class="copy" data-copy="${u.password}">copiar</button>
+          </td>
+          <td><span class="tag">${u.role}</span></td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    document.getElementById("toggle").addEventListener("click", () => {
+      visible = !visible; render();
+    });
+    filterInput.addEventListener("input", render);
+
+    document.addEventListener("click", e => {
+      const btn = e.target.closest(".copy");
+      if (!btn) return;
+      navigator.clipboard.writeText(btn.dataset.copy).then(() => {
+        const old = btn.textContent;
+        btn.textContent = "✓"; btn.classList.add("copied");
+        setTimeout(() => { btn.textContent = old; btn.classList.remove("copied"); }, 1200);
+      });
+    });
+
+    render();
+  </script>
+</body>
+</html>
