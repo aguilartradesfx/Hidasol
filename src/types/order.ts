@@ -88,9 +88,44 @@ export const MAQUINAS_OPTIONS: MaquinaAsignada[] = [
   'Plotter 135', 'CNC JWEI', 'Mimaki UJF-Promo', 'DTF-Normal', 'DTF-Neón'
 ];
 
+/**
+ * Un elemento/trabajo dentro de una orden. Una orden puede tener varios.
+ * Todos los campos son opcionales: a veces es producto + medidas + material,
+ * a veces solo medidas + descripción. El elemento [0] se refleja siempre en
+ * los campos planos de `Order` (compatibilidad con consumidores y Supabase).
+ */
+export interface OrderElemento {
+  productoNombre?: string;
+  productoId?: string;
+  tipoTrabajo?: string;
+  cantidad?: number;
+  descripcion?: string;
+  unidadMedida?: UnidadMedida;
+  alto?: number;
+  ancho?: number;
+  materialPrincipal?: MaterialPrincipal;
+  tipoMaterial?: string;
+  grosorMaterial?: string;
+  colorMaterial?: string;
+  instalacionTipo?: string;
+  bannerDetalle?: string;
+  colorImpresion?: string;
+  tecnica?: string;
+  caras?: string;
+  acabados?: Acabado[];
+  corporeoTipo?: TipoCorporeo;
+  corporeoMulti?: CorporeoOption[];
+  corporeoColor?: string;
+  corporeoFuente?: 'Si' | 'No';
+  corporeoMaterial?: MaterialCorporeo;
+  corporeoGrosor?: number;
+  corporeoEstructura?: EstructuraCorporeo;
+  colorManguera?: string;
+}
+
 export interface Order {
   id: string;
-  
+
   // Sección 1 — Información del Cliente
   cliente: string;
   contactoWhatsApp: string;
@@ -118,7 +153,10 @@ export interface Order {
   tipoTrabajo: string;
   cantidad: number;
   
-  // Sección 4 — Medidas y Material
+  // Varios elementos/trabajos por orden. elementos[0] refleja los campos planos.
+  elementos?: OrderElemento[];
+
+  // Sección 4 — Medidas y Material (refleja elementos[0])
   unidadMedida: UnidadMedida;
   alto: number;
   ancho: number;
@@ -218,6 +256,83 @@ export function calcularSaldo(order: Order): number {
 
 export function calcularMontoConIVA(order: Order): number {
   return order.incluirIVA ? order.valorTotal * 1.13 : order.valorTotal;
+}
+
+// ── Elementos (varios trabajos por orden) ──────────────────────────────────
+
+/** Construye el elemento principal a partir de los campos planos de la orden. */
+export function elementoFromOrder(o: Partial<Order>): OrderElemento {
+  return {
+    productoNombre: o.productoNombre,
+    productoId: o.productoId,
+    tipoTrabajo: o.tipoTrabajo,
+    cantidad: o.cantidad,
+    unidadMedida: o.unidadMedida,
+    alto: o.alto,
+    ancho: o.ancho,
+    materialPrincipal: o.materialPrincipal,
+    tipoMaterial: o.tipoMaterial,
+    grosorMaterial: o.grosorMaterial,
+    colorMaterial: o.colorMaterial,
+    instalacionTipo: o.instalacionTipo,
+    bannerDetalle: o.bannerDetalle,
+    colorImpresion: o.colorImpresion,
+    tecnica: o.tecnica,
+    caras: o.caras,
+    acabados: o.acabados,
+    corporeoTipo: o.corporeoTipo,
+    corporeoMulti: o.corporeoMulti,
+    corporeoColor: o.corporeoColor,
+    corporeoFuente: o.corporeoFuente,
+    corporeoMaterial: o.corporeoMaterial,
+    corporeoGrosor: o.corporeoGrosor,
+    corporeoEstructura: o.corporeoEstructura,
+    colorManguera: o.colorManguera,
+  };
+}
+
+/** Devuelve los elementos de una orden; si no hay, sintetiza uno desde los campos planos. */
+export function getElementos(o: Partial<Order>): OrderElemento[] {
+  if (o.elementos && o.elementos.length > 0) return o.elementos;
+  return [elementoFromOrder(o)];
+}
+
+/**
+ * Garantiza que `elementos` tenga al menos un elemento y que los campos planos
+ * de la orden reflejen elementos[0]. Se llama antes de persistir.
+ */
+export function syncPrimaryElemento(o: Order): Order {
+  const elementos = getElementos(o);
+  const p = elementos[0] || {};
+  return {
+    ...o,
+    elementos,
+    productoNombre: p.productoNombre ?? '',
+    productoId: p.productoId ?? '',
+    tipoTrabajo: p.tipoTrabajo ?? '',
+    cantidad: p.cantidad ?? 1,
+    unidadMedida: p.unidadMedida ?? 'cm',
+    alto: p.alto ?? 0,
+    ancho: p.ancho ?? 0,
+    materialPrincipal: p.materialPrincipal ?? 'Lona',
+    tipoMaterial: p.tipoMaterial ?? '',
+    grosorMaterial: p.grosorMaterial,
+    colorMaterial: p.colorMaterial,
+    instalacionTipo: p.instalacionTipo,
+    bannerDetalle: p.bannerDetalle,
+    colorImpresion: p.colorImpresion ?? '',
+    tecnica: p.tecnica ?? '',
+    caras: p.caras ?? '',
+    acabados: p.acabados ?? [],
+    corporeoTipo: p.corporeoTipo,
+    corporeoMulti: p.corporeoMulti,
+    corporeoColor: p.corporeoColor,
+    corporeoFuente: p.corporeoFuente,
+    corporeoMaterial: p.corporeoMaterial,
+    corporeoGrosor: p.corporeoGrosor,
+    corporeoEstructura: p.corporeoEstructura,
+    colorManguera: p.colorManguera,
+  };
 }
 
 export interface OrdersGroupedByDate {
