@@ -1,4 +1,4 @@
-import { Order, OrderStatus, calcularSaldo, calcularMontoConIVA } from '@/types/order';
+import { Order, OrderStatus, calcularSaldo, calcularMontoConIVA, getElementos } from '@/types/order';
 import { formatCurrency, formatDate } from '@/lib/order-utils';
 import {
   Dialog,
@@ -228,6 +228,41 @@ export function OrderDetailModal({
                 </div>
               </AccordionContent>
             </AccordionItem>
+
+            {/* Elementos / Trabajos (solo si hay varios) */}
+            {getElementos(order).length > 1 && (
+              <AccordionItem value="elementos" className="border border-border rounded-[10px] px-4">
+                <AccordionTrigger className="text-lg font-semibold font-['Bricolage_Grotesque'] hover:no-underline">
+                  Elementos / Trabajos ({getElementos(order).length})
+                </AccordionTrigger>
+                <AccordionContent className="space-y-3 pt-2">
+                  {getElementos(order).map((el, i) => {
+                    const unidad = el.unidadMedida || 'cm';
+                    const detalles = [
+                      el.cantidad != null && `Cant: ${el.cantidad}`,
+                      (el.alto || el.ancho) && `${el.alto || 0} × ${el.ancho || 0} ${unidad}`,
+                      el.materialPrincipal && `${el.materialPrincipal}${el.tipoMaterial ? ` · ${el.tipoMaterial}` : ''}`,
+                      el.colorImpresion,
+                      el.acabados && el.acabados.length > 0 && el.acabados.join(', '),
+                    ].filter(Boolean);
+                    return (
+                      <div key={i} className="border border-border/60 rounded-[10px] p-3 bg-card/50">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">{i + 1}</span>
+                          <p className="font-semibold">{el.productoNombre?.trim() || el.descripcion?.trim() || `Elemento ${i + 1}`}</p>
+                        </div>
+                        {el.descripcion && el.productoNombre && (
+                          <p className="text-sm text-muted-foreground">{el.descripcion}</p>
+                        )}
+                        {detalles.length > 0 && (
+                          <p className="text-sm text-muted-foreground font-mono">{detalles.join('  ·  ')}</p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </AccordionContent>
+              </AccordionItem>
+            )}
 
             {/* Material */}
             <AccordionItem value="material" className="border border-border rounded-[10px] px-4">

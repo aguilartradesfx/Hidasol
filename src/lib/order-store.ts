@@ -1,6 +1,6 @@
 "use client";
 
-import { Order, OrderStatus, Acabado, CorporeoOption, StationHistoryEntry } from "@/types/order";
+import { Order, OrderStatus, Acabado, CorporeoOption, StationHistoryEntry, OrderElemento, syncPrimaryElemento } from "@/types/order";
 import { isStation, type Station } from "./stations";
 import { createClient } from "./supabase";
 
@@ -36,6 +36,7 @@ function orderToRow(order: Order): Record<string, any> {
     tipo_material: order.tipoMaterial || "",
     alto_cm: String(order.alto || 0),
     ancho_cm: String(order.ancho || 0),
+    elementos: order.elementos && order.elementos.length > 0 ? order.elementos : null,
     color_impresion: order.colorImpresion || "",
     tecnica: order.tecnica || "",
     caras: order.caras || "",
@@ -161,6 +162,18 @@ function rowToOrder(row: any): Order {
         .filter(Boolean)
     : [];
 
+  // jsonb llega ya parseado desde supabase-js; toleramos string por si acaso.
+  let elementos: OrderElemento[] | undefined;
+  const rawEl = row.elementos;
+  if (rawEl) {
+    try {
+      const arr = typeof rawEl === "string" ? JSON.parse(rawEl) : rawEl;
+      if (Array.isArray(arr) && arr.length > 0) elementos = arr as OrderElemento[];
+    } catch {
+      elementos = undefined;
+    }
+  }
+
   return {
     id: row.order_id,
     cliente: row.cliente || "",
@@ -179,6 +192,7 @@ function rowToOrder(row: any): Order {
     unidadMedida: row.unidad_medida || "cm",
     materialPrincipal: row.material || "Lona",
     tipoMaterial: row.tipo_material || "",
+    elementos,
     alto: Number(row.alto_cm) || 0,
     ancho: Number(row.ancho_cm) || 0,
     colorImpresion: row.color_impresion || "",
@@ -375,7 +389,7 @@ export async function loadOrderCounts(): Promise<{
 export async function addOrder(
   order: Order,
 ): Promise<{ order: Order | null; error: string | null }> {
-  const row = orderToRow(order);
+  const row = orderToRow(syncPrimaryElemento(order));
   const supabase = getSupabase();
 
   console.log("Attempting to insert order with ID:", order.id);
@@ -401,7 +415,7 @@ export async function updateOrderInDB(
   orderId: string,
   order: Order,
 ): Promise<{ order: Order | null; error: string | null }> {
-  const row = orderToRow(order);
+  const row = orderToRow(syncPrimaryElemento(order));
   // Remove order_id from update payload since it's the PK
   delete row.order_id;
   const supabase = getSupabase();

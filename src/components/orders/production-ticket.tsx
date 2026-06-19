@@ -1,4 +1,4 @@
-import { Order, calcularSaldo, calcularMontoConIVA } from '@/types/order';
+import { Order, calcularSaldo, calcularMontoConIVA, getElementos } from '@/types/order';
 import { formatCurrency, formatDate } from '@/lib/order-utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Printer, X } from 'lucide-react';
@@ -375,15 +375,40 @@ export function ProductionTicket({ order, isOpen, onClose }: ProductionTicketPro
 
           {order.tipoOrden === 'Rotulacion' && (
             <>
-              <PreviewSection title="Material y Medidas">
-                <PreviewField label="Material" value={`${order.materialPrincipal} — ${order.tipoMaterial}`} />
-                <PreviewField label="Alto" value={`${order.alto} ${order.unidadMedida || 'cm'}`} mono />
-                <PreviewField label="Ancho" value={`${order.ancho} ${order.unidadMedida || 'cm'}`} mono />
-                <PreviewField label="Color / Impresión" value={order.colorImpresion} />
-                <PreviewField label="Técnica" value={order.tecnica} />
-                <PreviewField label="Caras" value={order.caras} />
-              </PreviewSection>
-              {order.acabados && order.acabados.length > 0 && (
+              {getElementos(order).length > 1 ? (
+                getElementos(order).map((el, i) => {
+                  const unidad = el.unidadMedida || 'cm';
+                  const tieneMedidas = (el.alto || 0) > 0 || (el.ancho || 0) > 0;
+                  return (
+                    <PreviewSection key={i} title={`Elemento ${i + 1}${el.productoNombre ? ' — ' + el.productoNombre : ''}`}>
+                      <PreviewField label="Producto" value={el.productoNombre} />
+                      <PreviewField label="Cantidad" value={el.cantidad} mono />
+                      <PreviewField label="Descripción" value={el.descripcion} />
+                      <PreviewField label="Material" value={el.materialPrincipal ? `${el.materialPrincipal}${el.tipoMaterial ? ' — ' + el.tipoMaterial : ''}` : null} />
+                      <PreviewField label="Alto" value={tieneMedidas ? `${el.alto || 0} ${unidad}` : null} mono />
+                      <PreviewField label="Ancho" value={tieneMedidas ? `${el.ancho || 0} ${unidad}` : null} mono />
+                      <PreviewField label="Color / Impresión" value={el.colorImpresion} />
+                      <PreviewField label="Técnica" value={el.tecnica} />
+                      <PreviewField label="Caras" value={el.caras} />
+                      {el.acabados && el.acabados.length > 0 && (
+                        <div className="col-span-2 sm:col-span-4 flex flex-wrap gap-1">
+                          {el.acabados.map(a => <span key={a} className="px-2 py-0.5 border border-black rounded-full text-[10px] font-medium">{a}</span>)}
+                        </div>
+                      )}
+                    </PreviewSection>
+                  );
+                })
+              ) : (
+                <PreviewSection title="Material y Medidas">
+                  <PreviewField label="Material" value={`${order.materialPrincipal} — ${order.tipoMaterial}`} />
+                  <PreviewField label="Alto" value={`${order.alto} ${order.unidadMedida || 'cm'}`} mono />
+                  <PreviewField label="Ancho" value={`${order.ancho} ${order.unidadMedida || 'cm'}`} mono />
+                  <PreviewField label="Color / Impresión" value={order.colorImpresion} />
+                  <PreviewField label="Técnica" value={order.tecnica} />
+                  <PreviewField label="Caras" value={order.caras} />
+                </PreviewSection>
+              )}
+              {getElementos(order).length <= 1 && order.acabados && order.acabados.length > 0 && (
                 <div className="border border-black rounded p-2">
                   <div className="text-[10px] font-bold uppercase border-b border-black pb-1 mb-1.5">Acabados</div>
                   <div className="flex flex-wrap gap-1">
