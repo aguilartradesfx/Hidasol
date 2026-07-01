@@ -29,3 +29,10 @@ tsconfig.tsbuildinfo
 # Supabase CLI local state
 supabase/.temp/
 supabase/.branches/
+
+# n8n flow export — contiene el token GHL en texto plano. NO commitear. Borrar tras la migración.
+Hidasol - Agent Unificado v2.json
+*.n8n.json
+
+# System prompt extracted from n8n JSON (derived, not to be committed)
+scripts/system-prompt.txt
