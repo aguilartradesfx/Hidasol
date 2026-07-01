@@ -1,7 +1,7 @@
 -- supabase/migrations/20260701_agent_native_foundations.sql
 CREATE TABLE IF NOT EXISTS bot_config (
   id            int PRIMARY KEY DEFAULT 1 CHECK (id = 1),
-  bot_enabled   boolean NOT NULL DEFAULT true,
+  bot_enabled   boolean NOT NULL DEFAULT false,  -- fail-closed: cualquier fila nueva nace apagada
   system_prompt text NOT NULL DEFAULT '',
   model         text NOT NULL DEFAULT 'claude-sonnet-4-5-20250929',
   temperature   real NOT NULL DEFAULT 0,
@@ -35,6 +35,22 @@ CREATE TABLE IF NOT EXISTS agent_logs (
 ALTER TABLE bot_config   DISABLE ROW LEVEL SECURITY;
 ALTER TABLE agent_messages DISABLE ROW LEVEL SECURITY;
 ALTER TABLE agent_logs   DISABLE ROW LEVEL SECURITY;
+
+-- message_buffer: preexiste en la DB de producción (era n8n). Se declara aquí con
+-- IF NOT EXISTS para que la migración sea autocontenida en una DB fresca (CI/staging).
+CREATE TABLE IF NOT EXISTS message_buffer (
+  id           bigserial PRIMARY KEY,
+  contact_id   text NOT NULL,
+  message      text,
+  media_url    text,
+  message_type text,
+  name         text,
+  phone        text,
+  channel      text,
+  email        text,
+  created_at   timestamptz DEFAULT now(),
+  processed    boolean DEFAULT false
+);
 
 -- Índice para el debounce
 CREATE INDEX IF NOT EXISTS idx_buffer_unprocessed ON message_buffer(contact_id, created_at) WHERE processed = false;
