@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { handleWebhook } from '@/app/api/wa/webhook/route';
 
 const baseDeps = () => ({
-  getContact: vi.fn(async () => ({ tags: [], name: 'Ana', phone: '7000', email: null })),
+  getContact: vi.fn(async (): Promise<{ tags: string[]; name: string | null; phone: string | null; email: string | null }> => ({ tags: [], name: 'Ana', phone: '7000', email: null })),
   getBotConfig: vi.fn(async () => ({ botEnabled: true, systemPrompt: 'X', model: 'm', temperature: 0 })),
   insertBufferMessage: vi.fn(async () => {}),
   client: {} as any,
