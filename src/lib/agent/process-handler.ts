@@ -23,11 +23,15 @@ export interface Deps {
 }
 
 export async function handleProcess(contactId: string, deps: Deps): Promise<{ status: number; body: any }> {
+  // Kill switch global: si el bot está apagado, NO reclamamos ni enviamos nada.
+  // (El webhook ya bloquea la ingesta, pero esto cubre mensajes ya en buffer + el cron.)
+  const cfg = await deps.getBotConfig(deps.client);
+  if (!cfg.botEnabled) return { status: 200, body: { contact_id: contactId, skipped: 'bot off' } };
+
   const rows = await deps.claimBuffer(deps.client, contactId);
   if (rows.length === 0) return { status: 200, body: { contact_id: contactId, claimed: 0 } };
 
   const userText = await deps.rowsToText(rows);
-  const cfg = await deps.getBotConfig(deps.client);
   const history = await deps.loadMemory(deps.client, contactId);
   const run = await deps.runAgent({ contactId, userText, systemPrompt: cfg.systemPrompt, model: cfg.model, temperature: cfg.temperature, history, client: deps.client });
   const parsed = parseAgentOutput(run.output, contactId);

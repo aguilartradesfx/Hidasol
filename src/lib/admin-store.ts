@@ -18,6 +18,7 @@ export async function setBotEnabled(enabled: boolean, updatedBy: string, client?
 }
 
 export async function setSystemPrompt(prompt: string, updatedBy: string, client?: SupabaseClient) {
+  if (!prompt || !prompt.trim()) throw new Error('El prompt no puede estar vacío');
   const { error } = await db(client).from('bot_config').update({ system_prompt: prompt, updated_by: updatedBy, updated_at: new Date().toISOString() }).eq('id', 1);
   if (error) throw new Error(`setSystemPrompt: ${error.message}`);
 }

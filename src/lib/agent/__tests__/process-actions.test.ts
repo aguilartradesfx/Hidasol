@@ -30,4 +30,11 @@ describe('handleProcess (con acciones)', () => {
     expect(d.runAgent).not.toHaveBeenCalled();
     expect(res.body).toEqual({ contact_id: 'C1', claimed: 0 });
   });
+  it('kill switch: si el bot está apagado, NO reclama ni corre el agente', async () => {
+    const d = deps({ getBotConfig: vi.fn(async () => ({ botEnabled: false, systemPrompt: 'S', model: 'm', temperature: 0 })) });
+    const res = await handleProcess('C1', d);
+    expect(d.claimBuffer).not.toHaveBeenCalled();
+    expect(d.runAgent).not.toHaveBeenCalled();
+    expect(res.body).toMatchObject({ skipped: 'bot off' });
+  });
 });
