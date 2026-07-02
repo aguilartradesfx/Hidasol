@@ -35,7 +35,9 @@ export async function describeImage(
   const doFetch = deps.fetch ?? fetch;
   const anthropic = deps.anthropic ?? getAnthropic();
   const res = await doFetch(mediaUrl);
-  const media_type = res.headers.get('content-type') || 'image/jpeg';
+  const ALLOWED_IMG = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'] as const;
+  const ct = res.headers.get('content-type') || 'image/jpeg';
+  const media_type = ((ALLOWED_IMG as readonly string[]).includes(ct) ? ct : 'image/jpeg') as (typeof ALLOWED_IMG)[number];
   const b64 = Buffer.from(await res.arrayBuffer()).toString('base64');
   const msg = await anthropic.messages.create({
     model: 'claude-sonnet-4-5-20250929',
