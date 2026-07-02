@@ -12,6 +12,12 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from '@/components/ui/dropdown-menu';
 import { Printer, Edit, ChevronDown, UserPlus } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { StationControl } from './station-control';
@@ -43,16 +49,13 @@ export function OrderDetailModal({
   isAdmin = false,
 }: OrderDetailModalProps) {
   const [statusOpen, setStatusOpen] = useState(false);
-  const [disenoOpen, setDisenoOpen] = useState(false);
   const [assignOpen, setAssignOpen] = useState(false);
   const statusRef = useRef<HTMLDivElement>(null);
-  const disenoRef = useRef<HTMLDivElement>(null);
   const assignRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (statusRef.current && !statusRef.current.contains(e.target as Node)) setStatusOpen(false);
-      if (disenoRef.current && !disenoRef.current.contains(e.target as Node)) setDisenoOpen(false);
       if (assignRef.current && !assignRef.current.contains(e.target as Node)) setAssignOpen(false);
     };
     document.addEventListener('mousedown', handler);
@@ -464,40 +467,29 @@ export function OrderDetailModal({
                   <div>
                     <label className="text-sm font-medium text-muted-foreground mb-2 block">Diseñado por</label>
                     {isAdmin ? (
-                      <div ref={disenoRef} className="relative">
-                        <button
-                          onClick={() => setDisenoOpen(!disenoOpen)}
-                          className="flex items-center justify-between gap-2 w-full max-w-[180px] px-3 py-2 bg-secondary border border-border rounded-[8px] text-sm font-medium transition-all duration-200 hover:border-primary/50"
-                        >
+                      <DropdownMenu>
+                        <DropdownMenuTrigger className="group flex items-center justify-between gap-2 w-full max-w-[180px] px-3 py-2 bg-secondary border border-border rounded-[8px] text-sm font-medium transition-all duration-200 hover:border-primary/50 outline-none">
                           <span>{order.disenadoPor ?? 'Sin asignar'}</span>
-                          <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform duration-200 ${disenoOpen ? 'rotate-180' : ''}`} />
-                        </button>
-                        {disenoOpen && (
-                          <div className="absolute left-0 top-full mt-1.5 w-[180px] bg-card border border-border rounded-[10px] shadow-xl z-50 overflow-hidden">
-                            <button
-                              onClick={() => {
-                                onDisenadoPorChange?.(order.id, '');
-                                setDisenoOpen(false);
-                              }}
-                              className="w-full px-4 py-2.5 text-left text-sm text-muted-foreground hover:bg-accent transition-all duration-150"
+                          <ChevronDown className="w-3.5 h-3.5 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start" className="w-[180px]">
+                          <DropdownMenuItem
+                            onSelect={() => onDisenadoPorChange?.(order.id, '')}
+                            className="text-muted-foreground"
+                          >
+                            Sin asignar
+                          </DropdownMenuItem>
+                          {DISENO_OPTIONS.map(opt => (
+                            <DropdownMenuItem
+                              key={opt}
+                              onSelect={() => onDisenadoPorChange?.(order.id, opt)}
+                              className={order.disenadoPor === opt ? 'text-primary font-semibold' : 'font-medium'}
                             >
-                              Sin asignar
-                            </button>
-                            {DISENO_OPTIONS.map(opt => (
-                              <button
-                                key={opt}
-                                onClick={() => {
-                                  onDisenadoPorChange?.(order.id, opt);
-                                  setDisenoOpen(false);
-                                }}
-                                className={`w-full px-4 py-2.5 text-left text-sm font-medium hover:bg-accent transition-all duration-150 ${order.disenadoPor === opt ? 'text-primary font-semibold' : ''}`}
-                              >
-                                {opt}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
+                              {opt}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     ) : (
                       <p className="text-base font-medium">{order.disenadoPor ?? '—'}</p>
                     )}
