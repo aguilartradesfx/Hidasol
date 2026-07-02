@@ -32,11 +32,12 @@ import { AssignmentsView } from '@/components/orders/assignments-view';
 import { DesignerDashboard } from '@/components/orders/designer-dashboard';
 import { UsersView } from '@/components/orders/users-view';
 import { StationDashboard } from '@/components/orders/station-dashboard';
+import { AdminPanelView } from '@/components/orders/admin-panel-view';
 import { useAuth } from '@/contexts/auth-context';
 import { LoginPage } from '@/components/auth/login-page';
 import { isStationOnlyRole, primaryStationForRole } from '@/lib/stations';
 
-type NavSection = 'dashboard' | 'orders' | 'search' | 'assignments' | 'reports' | 'users';
+type NavSection = 'dashboard' | 'orders' | 'search' | 'assignments' | 'reports' | 'users' | 'bot-admin';
 
 export default function Page() {
   const { user, loading: authLoading, isAdmin, signOut } = useAuth();
@@ -402,6 +403,10 @@ export default function Page() {
                   )}
 
                   {activeSection === 'users' && isAdmin && <UsersView />}
+
+                  {activeSection === 'bot-admin' && isAdmin && (
+                    <AdminPanelView />
+                  )}
                 </>
               )}
             </>

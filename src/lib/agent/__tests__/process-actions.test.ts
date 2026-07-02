@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { handleProcess } from '@/app/api/wa/process/route';
+import { handleProcess } from '@/lib/agent/process-handler';
 
 function deps(over: any = {}) {
   return {

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { handleUpsert } from '@/app/api/admin/knowledge/route';
+import { handleUpsert } from '@/lib/agent/knowledge-upsert';
 
 describe('handleUpsert (knowledge)', () => {
   it('embebe el contenido y hace upsert con el embedding', async () => {

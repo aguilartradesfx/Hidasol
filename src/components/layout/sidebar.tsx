@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { LayoutDashboard, Package, Search, Plus, Users, LogOut, ShieldCheck, User, Menu, X, UserPlus, BarChart2, KeyRound } from 'lucide-react';
+import { LayoutDashboard, Package, Search, Plus, Users, LogOut, ShieldCheck, User, Menu, X, UserPlus, BarChart2, KeyRound, Bot } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ThemeSwitcher } from '@/components/theme-switcher';
 
-type NavSection = 'dashboard' | 'orders' | 'search' | 'assignments' | 'reports' | 'users';
+type NavSection = 'dashboard' | 'orders' | 'search' | 'assignments' | 'reports' | 'users' | 'bot-admin';
 
 interface SidebarProps {
   activeSection: NavSection;
@@ -29,6 +29,7 @@ export function Sidebar({ activeSection, onSectionChange, onNewOrder, onOpenAssi
     { id: 'assignments' as NavSection, label: 'Asignaciones', icon: Users, adminOnly: false },
     { id: 'reports' as NavSection, label: 'Reportes', icon: BarChart2, adminOnly: true },
     { id: 'users' as NavSection, label: 'Usuarios', icon: KeyRound, adminOnly: true },
+    { id: 'bot-admin' as NavSection, label: 'Agente IA', icon: Bot, adminOnly: true },
   ].filter(item => !item.adminOnly || isAdmin);
 
   const handleNavClick = (section: NavSection) => {

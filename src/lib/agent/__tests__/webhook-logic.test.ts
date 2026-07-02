@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { handleWebhook } from '@/app/api/wa/webhook/route';
+import { handleWebhook } from '@/lib/agent/webhook-handler';
 
 const baseDeps = () => ({
   getContact: vi.fn(async (): Promise<{ tags: string[]; name: string | null; phone: string | null; email: string | null }> => ({ tags: [], name: 'Ana', phone: '7000', email: null })),
