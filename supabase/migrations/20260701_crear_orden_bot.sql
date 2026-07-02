@@ -3,6 +3,10 @@ CREATE OR REPLACE FUNCTION crear_orden_bot(p jsonb) RETURNS text AS $$
 DECLARE
   new_id text;
 BEGIN
+  -- Serializa la generación del correlativo diario para evitar order_id duplicados
+  -- bajo llamadas concurrentes (serverless). El lock se libera al terminar la transacción.
+  PERFORM pg_advisory_xact_lock(hashtext('crear_orden_bot'));
+
   SELECT 'ORD-' || to_char(now(), 'YYMMDD') || '-' ||
          LPAD((SELECT COUNT(*) + 1 FROM orders WHERE order_id LIKE 'ORD-' || to_char(now(), 'YYMMDD') || '%')::text, 3, '0')
   INTO new_id;
