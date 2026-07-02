@@ -8,6 +8,7 @@ interface RunParams {
   userText: string;
   systemPrompt: string;
   model: string;
+  temperature?: number;
   history: MemMessage[];
   client: SupabaseClient;
   deps?: { anthropic?: any; runTool?: typeof defaultRunTool };
@@ -34,6 +35,7 @@ export async function runAgent(params: RunParams): Promise<{ output: string; too
     const res = await anthropic.messages.create({
       model: params.model,
       max_tokens: 1024,
+      temperature: params.temperature ?? 0,
       system,
       tools: TOOL_DEFS,
       messages,
