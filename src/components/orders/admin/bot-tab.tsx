@@ -23,9 +23,13 @@ export function BotTab() {
     catch (e: any) { setEnabled(!v); toast({ title: 'Error', description: e.message, variant: 'destructive' }); }
   }
   async function toggleContact(cid: string, v: boolean) {
+    const previous = contacts.find((c) => c.contact_id === cid)?.estado_bot ?? 'off';
     setContacts((cs) => cs.map((c) => c.contact_id === cid ? { ...c, estado_bot: v ? 'idle' : 'off' } : c));
     try { await setContactBot(cid, v); }
-    catch (e: any) { toast({ title: 'Error', description: e.message, variant: 'destructive' }); }
+    catch (e: any) {
+      setContacts((cs) => cs.map((c) => c.contact_id === cid ? { ...c, estado_bot: previous } : c));
+      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+    }
   }
 
   return (
