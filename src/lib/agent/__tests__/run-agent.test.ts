@@ -40,4 +40,28 @@ describe('runAgent', () => {
     expect(r.output).toBe('¡Hola! ¿Cómo te ayudo?');
     expect(r.toolsUsed).toEqual([]);
   });
+
+  it('si se agotan los turnos sin texto final, devuelve [HANDOFF]', async () => {
+    const create = vi.fn(async () => ({
+      stop_reason: 'tool_use',
+      content: [{ type: 'tool_use', id: 't', name: 'buscar_producto', input: { termino: 'x' } }],
+      usage: { input_tokens: 1, output_tokens: 1 },
+    }));
+    const r = await runAgent({
+      contactId: 'C1', userText: 'x', systemPrompt: 'S', model: 'm', history: [], client: {} as any,
+      deps: { anthropic: { messages: { create } } as any, runTool: vi.fn(async () => ({})) },
+    });
+    expect(r.output).toBe('[HANDOFF]');
+  });
+
+  it('marca is_error cuando la tool falla', async () => {
+    const create = vi.fn()
+      .mockResolvedValueOnce({ stop_reason: 'tool_use', content: [{ type: 'tool_use', id: 't', name: 'buscar_producto', input: {} }], usage: { input_tokens: 1, output_tokens: 1 } })
+      .mockResolvedValueOnce({ stop_reason: 'end_turn', content: [{ type: 'text', text: 'ok' }], usage: { input_tokens: 1, output_tokens: 1 } });
+    const runTool = vi.fn(async () => { throw new Error('boom'); });
+    await runAgent({ contactId: 'C1', userText: 'x', systemPrompt: 'S', model: 'm', history: [], client: {} as any, deps: { anthropic: { messages: { create } } as any, runTool } });
+    const secondCallMessages = create.mock.calls[1][0].messages;
+    const toolResult = secondCallMessages[secondCallMessages.length - 1].content[0];
+    expect(toolResult.is_error).toBe(true);
+  });
 });

@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import Anthropic from '@anthropic-ai/sdk';
 import { getAnthropic } from './llm';
 import { TOOL_DEFS, runTool as defaultRunTool } from './tools';
 import type { MemMessage } from './memory';
@@ -32,12 +33,12 @@ export async function runAgent(params: RunParams): Promise<{ output: string; too
   let output = '';
 
   for (let turn = 0; turn < MAX_TURNS; turn++) {
-    const res = await anthropic.messages.create({
+    const res: Anthropic.Message = await anthropic.messages.create({
       model: params.model,
-      max_tokens: 1024,
+      max_tokens: 2048,
       temperature: params.temperature ?? 0,
       system,
-      tools: TOOL_DEFS,
+      tools: TOOL_DEFS as Anthropic.Tool[],
       messages,
     });
     tokensIn += res.usage?.input_tokens ?? 0;
@@ -50,12 +51,19 @@ export async function runAgent(params: RunParams): Promise<{ output: string; too
         if (block.type === 'tool_use') {
           toolsUsed.push(block.name);
           let result: any;
+          let errored = false;
           try {
             result = await runTool(block.name, block.input, params.client);
           } catch (e: any) {
             result = { error: e.message };
+            errored = true;
           }
-          toolResults.push({ type: 'tool_result', tool_use_id: block.id, content: JSON.stringify(result ?? null) });
+          toolResults.push({
+            type: 'tool_result',
+            tool_use_id: block.id,
+            content: JSON.stringify(result ?? null),
+            ...(errored ? { is_error: true } : {}),
+          });
         }
       }
       messages.push({ role: 'user', content: toolResults });
@@ -67,5 +75,6 @@ export async function runAgent(params: RunParams): Promise<{ output: string; too
     break;
   }
 
+  if (output === '') output = '[HANDOFF]';
   return { output, toolsUsed, tokensIn, tokensOut };
 }
