@@ -32,6 +32,10 @@ export async function handleProcess(contactId: string, deps: Deps): Promise<{ st
   if (rows.length === 0) return { status: 200, body: { contact_id: contactId, claimed: 0 } };
 
   const userText = await deps.rowsToText(rows);
+  // Guard: mensajes vacíos (eventos de GHL sin texto, recibos, etc.) no se mandan al agente
+  // (Anthropic rechaza contenido vacío → 500). No hay nada a qué responder.
+  if (!userText.trim()) return { status: 200, body: { contact_id: contactId, claimed: rows.length, skipped: 'empty' } };
+
   const history = await deps.loadMemory(deps.client, contactId);
   const run = await deps.runAgent({ contactId, userText, systemPrompt: cfg.systemPrompt, model: cfg.model, temperature: cfg.temperature, history, client: deps.client });
   const parsed = parseAgentOutput(run.output, contactId);
