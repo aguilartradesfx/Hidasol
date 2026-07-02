@@ -50,3 +50,18 @@ export async function describeImage(
   });
   return msg.content.filter((b: any) => b.type === 'text').map((b: any) => b.text).join(' ').trim();
 }
+
+export async function rowsToText(
+  rows: Array<{ message: string | null; message_type: string | null; media_url: string | null }>,
+  deps: { transcribeAudio?: typeof transcribeAudio; describeImage?: typeof describeImage } = {},
+): Promise<string> {
+  const tr = deps.transcribeAudio ?? transcribeAudio;
+  const di = deps.describeImage ?? describeImage;
+  const parts: string[] = [];
+  for (const r of rows) {
+    if (r.message_type === 'audio' && r.media_url) parts.push(await tr(r.media_url, undefined));
+    else if (r.message_type === 'image' && r.media_url) parts.push(`[Imagen: ${await di(r.media_url, undefined)}] ${r.message ?? ''}`.trim());
+    else if (r.message) parts.push(r.message);
+  }
+  return parts.join('\n');
+}
